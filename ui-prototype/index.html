@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BC-250-X — by Fanalogy · Prototype</title>
+<style>
+:root{--bg:#070b14;--panel:#0e1626;--panel2:#121e33;--line:#1e2c47;--txt:#e8eef7;--dim:#8fa3bf;--acc:#4da3ff;--acc2:#8b5cf6;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--rad:16px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#16294d 0,transparent 60%),radial-gradient(900px 500px at -10% 110%,#241545 0,transparent 55%),var(--bg);color:var(--txt);font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(7,11,20,.85);backdrop-filter:blur(8px);z-index:5}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:800}
+h1{font-size:19px;margin:0}h1 small{display:block;font-size:11px;color:var(--dim);font-weight:500;letter-spacing:.14em}
+.pill{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}.pill span{border:1px solid var(--line);background:var(--panel);padding:5px 10px;border-radius:99px;font-size:12px;color:var(--dim)}.pill b{color:var(--ok)}
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 69px)}
+nav{border-right:1px solid var(--line);padding:16px 10px;display:flex;flex-direction:column;gap:4px}
+nav button{background:none;border:0;color:var(--dim);text-align:left;padding:11px 12px;border-radius:12px;font-size:15px;cursor:pointer}
+nav button.on{background:var(--panel2);color:#fff}nav button:hover{color:#fff}
+nav .foot{margin-top:auto;font-size:11px;color:var(--dim);padding:8px}
+main{padding:22px;max-width:1180px}
+.screen{display:none}.screen.on{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--rad);padding:16px}
+.card h3{margin:0 0 6px;font-size:12px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.big{font-size:30px;font-weight:750}.sub{color:var(--dim);font-size:13px}
+.bar{height:8px;background:#0a1220;border-radius:99px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:40%}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:650;cursor:pointer}
+.btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+.btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);padding:14px 16px}
+.item .grow{flex:1}.tag{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--dim)}
+.tag.ok{color:var(--ok);border-color:#14532d}.tag.warn{color:var(--warn);border-color:#713f12}.tag.soon{color:#c4b5fd;border-color:#4c1d95}.tag.bad{color:var(--bad);border-color:#7f1d1d}
+.flag{border-radius:12px;padding:12px 14px;margin:10px 0;border:1px solid}
+.flag.amber{background:#2a2107;border-color:#713f12;color:#fde68a}.flag.red{background:#2a0d0d;border-color:#7f1d1d;color:#fecaca}.flag.green{background:#07271b;border-color:#14532d;color:#a7f3d0}
+pre.term{background:#04070d;border:1px solid var(--line);border-radius:14px;padding:16px;min-height:280px;white-space:pre-wrap;font:13px/1.6 ui-monospace,Menlo,monospace;color:#a7f3d0}
+input,select{background:#0a1220;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;place-items:center;z-index:9}.modal.on{display:grid}
+.modal .box{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:24px;max-width:560px;width:92%}
+canvas{width:100%;height:110px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}nav{flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}nav .foot{display:none}}
+</style></head><body>
+<header><div class="logo">X</div><h1>BC-250-X <small>BY FANALOGY · AMD BC-250 ONLY · PROTOTYPE — SAMPLE BOARD DATA</small></h1>
+<div class="pill"><span>LAN <b>Connected · 1 Gb/s</b></span><span>Catalog <b>Live · signed ✓</b></span><span>BC-250-X v0.1</span></div></header>
+<div class="layout">
+<nav id="nav">
+<button data-s="dash" class="on">▦ Dashboard</button><button data-s="boot">▶ Boot OS</button><button data-s="bios">⬢ BIOS</button>
+<button data-s="os">⬇ Install OS</button><button data-s="diag">♥ Diagnostics</button><button data-s="net">⌁ Network</button><button data-s="cli">›_ CLI Mode</button>
+<div class="foot">Keyboard: ↑ ↓ navigate · Enter select<br>Ctrl+Alt+F2 always drops to shell<br><br>Prototype note: values are a realistic sample board, not your board. The native UI reads the same fields live from hwmon / DMI.</div>
+</nav>
+<main>
+
+<section class="screen on" id="dash">
+<div class="flag amber">⚠ <b>No verified BIOS backup found.</b> Back up your BIOS before you change anything — it takes one click in the BIOS screen.</div>
+<div class="grid">
+<div class="card"><h3>CPU · Zen 2</h3><div class="big"><span id="ctemp">57</span>°C</div><div class="sub"><b style="color:#fff">8 cores / 16 threads</b> detected (BIOS-configured)<br>Stock ships 6c/12t · Load <span id="cload">23</span>% · 3.55 GHz</div><div class="bar"><i id="cbar" style="width:23%"></i></div></div>
+<div class="card"><h3>GPU · Cyan Skillfish gfx1013</h3><div class="big"><span id="gtemp">63</span>°C</div><div class="sub"><b style="color:#fff">40 CU detected</b> (driver unlock) · Stock 24 CU<br><span id="gclk">1500</span> MHz · oberon governor · <span id="gpow">118</span> W*</div><div class="bar"><i id="gbar" style="width:61%"></i></div></div>
+<div class="card"><h3>Memory · GDDR6 unified</h3><div class="big">16 GB</div><div class="sub">9.4 GB in use · VRAM carve <b style="color:var(--ok)">512 MB dynamic ✓</b><br>256-bit bus · shared CPU/GPU pool</div><div class="bar"><i style="width:59%"></i></div></div>
+<div class="card"><h3>Storage · NVMe</h3><div class="big">512 GB</div><div class="sub">PCIe 2.0 x2 (~1 GB/s ceiling)<br>SMART: <b style="color:var(--ok)">Healthy</b> · 41°C · 212 GB free</div><div class="bar"><i style="width:41%"></i></div></div>
+<div class="card"><h3>BIOS</h3><div class="big" style="font-size:23px">P3.00 Chipset ✓</div><div class="sub">Chip: <b style="color:#fff">MX25L12873F</b> · 16 MB · whitelisted ✓<br>IOMMU: <b style="color:var(--ok)">Disabled ✓</b> · Kernel 6.14 LTS ✓ known-good</div></div>
+<div class="card"><h3>Board power*</h3><div class="big"><span id="bpow">146</span> W</div><div class="sub">*SMU sensor is uncalibrated on BC-250 — shown as an estimate, never a promise. 220 W board nameplate · 8-pin PCIe</div></div>
+</div>
+<h2 style="margin:22px 0 10px">Thermal — last 60 seconds</h2>
+<div class="card"><canvas id="chart" width="900" height="110"></canvas><div class="sub">CPU (blue) · GPU (purple) — the native UI graphs hwmon at 1 Hz the same way.</div></div>
+<div class="row" style="margin-top:18px"><button class="btn" onclick="go('boot')">▶ Boot installed OS</button><button class="btn ghost" onclick="go('bios')">Back up BIOS now</button><button class="btn ghost" onclick="go('diag')">Run quick diagnostics</button></div>
+</section>
+
+<section class="screen" id="boot"><h2>Boot Operating System</h2><p class="sub">Detected on this board. Booting sets a one-time BootNext and restarts — your permanent boot order is not changed unless you tick the box.</p>
+<div class="list">
+<div class="item"><div class="grow"><b>Bazzite (Deck)</b><div class="sub">NVMe · Partition 3 · systemd-boot entry · Last booted yesterday</div></div><span class="tag ok">DETECTED</span><button class="btn" onclick="bootOs(this,'Bazzite')">Boot →</button></div>
+<div class="item"><div class="grow"><b>Nirvana OS</b><div class="sub">Not installed yet — install it from the Install OS screen</div></div><span class="tag soon">COMING SOON</span><button class="btn ghost" onclick="go('os')">Install OS</button></div>
+<div class="item"><div class="grow"><b>BC-250-X (this tool)</b><div class="sub">USB · Current session</div></div><span class="tag">RUNNING</span></div>
+<div class="item"><div class="grow"><b>UEFI Firmware Setup</b><div class="sub">The board BIOS setup (Del key at boot does the same)</div></div><button class="btn ghost" onclick="alert('Prototype: the real build reboots into firmware setup via efibootmgr / systemd-boot Reboot Into Firmware.')">Reboot to BIOS →</button></div>
+</div><label class="sub"><input type="checkbox" id="perm"> Make my choice the permanent default boot entry</label></section>
+
+<section class="screen" id="bios"><h2>BIOS — Backup &amp; Flash</h2>
+<div class="flag green">✓ Chip probe (read-only): <b>MX25L12873F · 16 MB · whitelisted.</b> The 512 KB SuperIO chip (MX25L4005A) is blacklisted — BC-250-X will never write it.</div>
+<div class="grid">
+<div class="card"><h3>Current BIOS</h3><div class="big" style="font-size:22px">P3.00 Chipset Menu</div><div class="sub">Modded community build · Settings verified: IOMMU off · VRAM 512 MB dynamic</div><br><button class="btn" id="bkbtn" onclick="doBackup()">⬇ Back up current BIOS</button><div class="sub" id="bkout" style="margin-top:8px">Reads the chip twice — the two reads must hash identically or the backup is discarded.</div></div>
+<div class="card"><h3>Recovery — if a flash ever goes wrong</h3><div class="sub" style="font-size:14px">J4004 header + CH347 programmer (native 3.3 V) + <code>flashrom -p ch341a_spi</code>. Full wiring table is built into the native UI. ⚠ Some CH341A units output 5 V and can damage the chip.</div></div>
+</div>
+<h3 style="margin:22px 0 10px">Fanalogy BIOS catalog — live from GitHub / downloads.fanalogy.com · signed ✓</h3>
+<div class="list" id="bioslist"></div>
+<h3 style="margin:22px 0 10px">…or flash a local file</h3>
+<div class="item"><div class="grow"><b>Browse USB / NVMe for a .ROM / .bin</b><div class="sub">Local files still must pass all gates: exactly 16,777,216 bytes · ROM-ID check · you confirm the SHA-256 shown · verified backup required.</div></div><input type="file" id="localbios" accept=".rom,.bin"><button class="btn ghost" onclick="localFlash()">Check file →</button></div><div class="sub" id="localout"></div>
+</section>
+
+<section class="screen" id="os"><h2>Install Operating System</h2><p class="sub">Curated for BC-250 and pulled <b>live</b> from the signed catalog — new releases (and Nirvana OS) appear here with no BC-250-X update. Downloads are SHA-256 verified before any write option unlocks.</p><div class="list" id="oslist"></div>
+<div class="flag amber">Writing an OS image is destructive. “Write to USB” excludes this BC-250-X boot stick by default. “Install to NVMe” wipes the whole NVMe and asks you to type <b>INSTALL</b>.</div></section>
+
+<section class="screen" id="diag"><h2>Diagnostics &amp; Stress Tests</h2>
+<div class="list">
+<div class="item"><div class="grow"><b>Quick check (~2 min)</b><div class="sub">Sensors sweep · NVMe SMART + short read · memory quick pattern · display EDID · network · GPU/CU detection</div></div><button class="btn" onclick="runDiag(this)">Run</button></div>
+<div class="item"><div class="grow"><b>CPU stress — stress-ng, 10 min</b><div class="sub">Watch temps live on the Dashboard graph. Throttling events are logged — this is how you learn if your board is stable at 8 cores.</div></div><button class="btn ghost" onclick="runDiag(this)">Run</button></div>
+<div class="item"><div class="grow"><b>GPU stress + CU stability</b><div class="sub">The honest way to test a 32/36/40-CU unlock: not every board is stable at 40. BC-250-X reports — it never forces an unlock.</div></div><button class="btn ghost" onclick="runDiag(this)">Run</button></div>
+<div class="item"><div class="grow"><b>Memory test — Memtest86+</b><div class="sub">Reboots into the EFI memory tester (open source). Best run overnight for a new board.</div></div><button class="btn ghost" onclick="alert('Prototype: real build sets BootNext to the bundled Memtest86+ EFI binary.')">Reboot &amp; test</button></div>
+<div class="item"><div class="grow"><b>NVMe benchmark — fio</b><div class="sub">Expect ~1 GB/s ceiling: BC-250's M.2 is PCIe 2.0 x2. A faster drive will not beat the link.</div></div><button class="btn ghost" onclick="runDiag(this)">Run</button></div>
+</div><div class="sub" id="diagout" style="margin-top:12px">Every run saves a timestamped report (.txt + .json) to USB.</div></section>
+
+<section class="screen" id="net"><h2>Network</h2>
+<div class="grid">
+<div class="card"><h3>Wired Ethernet</h3><div class="big" style="font-size:22px;color:var(--ok)">Connected</div><div class="sub">192.168.1.42 · Gateway 192.168.1.1 · DNS 1.1.1.1<br>Link 1 Gb/s · DHCP</div></div>
+<div class="card"><h3>Wi-Fi — USB dongle only</h3><div class="sub" style="font-size:14px">BC-250 has <b>no onboard Wi-Fi</b>. Plug in a supported USB dongle (Realtek / MediaTek / Atheros firmware is bundled) and networks appear here:</div><br>
+<div class="list" id="wifi"><div class="item"><div class="grow"><b>HomeNet-5G</b><div class="sub">WPA2 · Signal ▂▄▆█ 92%</div></div><button class="btn ghost" onclick="wifiJoin(this)">Connect</button></div>
+<div class="item"><div class="grow"><b>FanalogyLab</b><div class="sub">WPA3 · Signal ▂▄▆_ 67%</div></div><button class="btn ghost" onclick="wifiJoin(this)">Connect</button></div></div></div>
+</div><p class="sub" style="margin-top:14px">Catalog refresh, BIOS downloads and OS downloads all use whichever connection is up. Nothing is uploaded anywhere without you choosing it.</p></section>
+
+<section class="screen" id="cli"><h2>CLI Mode</h2><p class="sub">The real build drops to a shell on tty2 (Ctrl+Alt+F2) with <code>flashrom, efibootmgr, dmidecode, sensors, nvme, smartctl, stress-ng</code> plus the gated <code>bc250x</code> wrapper. Try it — type <code>help</code>, <code>bc250x status</code> or <code>bc250x verify</code>:</p>
+<pre class="term" id="term">bc250x@bc250:~$ </pre>
+<div class="row"><input id="cmd" style="flex:1" placeholder="type a command and hit Enter — try: bc250x status" onkeydown="if(event.key==='Enter')runCmd()"><button class="btn" onclick="runCmd()">Run</button></div></section>
+
+</main></div>
+
+<div class="modal" id="flashmodal"><div class="box">
+<h2 style="margin-top:0">Flash BIOS — 3 safety gates</h2><div id="flashwhat" class="sub"></div>
+<div class="flag red">⚠ <b>Do not power off during a flash</b> — it can look hung; wait at least 15 minutes. Power loss = hardware-programmer recovery.</div>
+<p>① Image gate — size + SHA-256 + ROM ID <span id="g1">…</span><br>② Backup gate — verified backup on file <span id="g2">…</span><br>③ Confirm gate — type <b>FLASH</b>:</p>
+<input id="flashword" placeholder="FLASH" style="width:100%" oninput="document.getElementById('flashgo').disabled=this.value!=='FLASH'">
+<div class="row" style="margin-top:16px"><button class="btn danger" id="flashgo" disabled onclick="doFlash()">Stage Flash Mode &amp; reboot</button><button class="btn ghost" onclick="document.getElementById('flashmodal').classList.remove('on')">Cancel</button></div>
+<div class="sub" id="flashout" style="margin-top:10px">The real build stages the image + Flash.nsh and reboots into the proven AfuEfix64 UEFI-shell flow, logs to USB, then walks you through the mandatory CMOS clear.</div>
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+function go(s){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));$(s).classList.add('on');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));window.scrollTo(0,0)}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.s));
+// live-ish dashboard
+let hist=[];setInterval(()=>{let c=56+Math.random()*6,g=62+Math.random()*7;$('ctemp').textContent=c.toFixed(0);$('gtemp').textContent=g.toFixed(0);$('cload').textContent=(18+Math.random()*22).toFixed(0);$('gpow').textContent=(105+Math.random()*28).toFixed(0);$('bpow').textContent=(132+Math.random()*30).toFixed(0);hist.push([c,g]);if(hist.length>60)hist.shift();draw()},1500);
+function draw(){let cv=$('chart'),x=cv.getContext('2d');x.clearRect(0,0,cv.width,cv.height);[['#4da3ff',0],['#8b5cf6',1]].forEach(([col,i])=>{x.strokeStyle=col;x.lineWidth=2;x.beginPath();hist.forEach((p,j)=>{let px=j/(59)*cv.width,py=105-(p[i]-35)*1.4;j?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()})}
+function bootOs(b,n){b.textContent='Setting BootNext…';setTimeout(()=>{b.textContent='Rebooting into '+n+' →';alert('Prototype: real build sets efibootmgr BootNext=' + n + ' and reboots. One-shot only'+($('perm').checked?', plus permanent default as you ticked.':'.'))},700)}
+let backedUp=false;
+function doBackup(){$('bkbtn').disabled=true;$('bkout').textContent='Reading chip… read 1 of 2…';setTimeout(()=>{$('bkout').textContent='Reading chip… read 2 of 2… verifying hashes match…'},900);setTimeout(()=>{backedUp=true;$('bkout').innerHTML='✓ <b style="color:var(--ok)">Verified backup saved:</b> BC250-backup-P300-20261020-a91f3c77.bin · SHA-256 a91f3c77…e204 · both reads identical · sidecar .json written to USB.';$('bkbtn').textContent='Back up again';$('bkbtn').disabled=false},1900)}
+const BIOS=[
+{n:'Fanalogy BIOS — P3.00 Chipset Menu',v:'Recommended',t:'ok',d:'The proven modded BIOS: chipset menus, dynamic VRAM (512 MB), core config. The default choice for almost every BC-250.',s:'16,777,216 bytes · SHA-256 verified from signed catalog'},
+{n:'Stock BIOS — P3.00 / P5.00 (Recovery)',v:'Recovery',t:'',d:'Unmodified stock images for rolling back.',s:'16,777,216 bytes · SHA-256 verified from signed catalog'},
+{n:'P5.00_clv',v:'Experimental — warning',t:'bad',d:'Experimental settings can brick the board if changed incorrectly. Have a CH347 programmer on hand first.',s:'Listed for completeness — never labelled Recommended'}];
+$('bioslist').innerHTML=BIOS.map((b,i)=>`<div class="item"><div class="grow"><b>${b.n}</b> <span class="tag ${b.t}">${b.v}</span><div class="sub">${b.d}<br>${b.s}</div></div><button class="btn ${i===2?'ghost':''}" onclick="openFlash('${b.n}')">Download & Flash</button></div>`).join('');
+function openFlash(n){$('flashwhat').textContent=n;$('g1').innerHTML='<b style="color:var(--ok)">✓ passed (prototype)</b>';$('g2').innerHTML=backedUp?'<b style="color:var(--ok)">✓ backup on file</b>':'<b style="color:var(--warn)">— no backup yet: the real build forces a backup first</b>';$('flashword').value='';$('flashgo').disabled=true;$('flashmodal').classList.add('on')}
+function localFlash(){let f=$('localbios').files[0];if(!f){$('localout').textContent='Pick a file first.';return}if(f.size!==16777216){$('localout').innerHTML=`<span style="color:var(--bad)">✗ Refused: ${f.name} is ${f.size.toLocaleString()} bytes — a BC-250 BIOS image is exactly 16,777,216. Nothing was written.</span>`;return}$('localout').innerHTML=`<span style="color:var(--ok)">✓ Size gate passed for ${f.name}.</span> Next gates: ROM-ID + your confirmed SHA-256 + verified backup.`;openFlash('Local file: '+f.name)}
+function doFlash(){$('flashout').innerHTML='<b style="color:var(--ok)">✓ Gates passed (prototype).</b> Real build: image + Flash.nsh staged to ESP → reboot → AfuEfix64 runs with logging → CMOS-clear wizard on next boot.'}
+const OS=[
+{n:'Nirvana OS — by Fanalogy',tag:'COMING SOON',t:'soon',d:'Built from the ground up for AI + gaming on BC-250: Fanalogy App Store / marketplace, proprietary apps & the agent system preinstalled. Appears here as Download the day Fanalogy publishes the image + hash.',b:null},
+{n:'Bazzite (BC-250 tuned)',tag:'★ DEFAULT · THE GIVEN',t:'ok',d:'BC-250-X\'s default install. Modules bundled, patched images ship the BC-250 kernel patch + governor pre-configured, Steam-machine ready. Needs P3.00 modded BIOS, IOMMU off, 512 MB dynamic VRAM.',b:'Download & write to USB'},
+{n:'Ubuntu 26.04 LTS',tag:'EXPERIMENTAL ON BC-250',t:'warn',d:'Resolute Raccoon (Apr 2026), GNOME 50, supported to 2031 — but it ships kernel 7.0, outside the community-verified BC-250 matrix. X applies the BC-250 setup and warns first. Bench-verify before daily-driving.',b:'Download & write to USB'},
+{n:'SteamOS (Valve)',tag:'EXPERIMENTAL ON BC-250',t:'warn',d:'Since 3.8 Valve lets you run SteamOS on your own AMD PC — but BC-250\'s gfx1013 is not on Valve\'s supported list. Recovery-style install, wipes the whole NVMe. Bazzite gives the same Steam Gaming Mode, BC-250-patched.',b:'Download & write to USB'},
+{n:'Fedora 43 (BC-250 setup)',tag:'BEGINNERS · GENERAL',t:'ok',d:'Fedora + the BC-250 docs automated setup. Keep the kernel in the known-good range (avoid 6.15.0–6.15.6 / 6.17.8–6.17.10).',b:'Download & write to USB'},
+{n:'CachyOS (BC-250)',tag:'MAX PERFORMANCE',t:'warn',d:'Best reported performance, longest manual setup. Advanced users.',b:'Download & write to USB'},
+{n:'Arch Linux (bc250-arch)',tag:'ADVANCED',t:'',d:'Arch + bc250-arch script: amdgpu options, oberon service, initramfs handled.',b:'Download & write to USB'}];
+$('oslist').innerHTML=OS.map(o=>`<div class="item"><div class="grow"><b>${o.n}</b> <span class="tag ${o.t}">${o.tag}</span><div class="sub">${o.d}</div></div>${o.b?`<button class="btn ghost" onclick="dlOs(this,'${o.n}')">${o.b}</button>`:'<span class="tag soon">NO DOWNLOAD UNTIL PUBLISHED</span>'}</div>`).join('');
+function dlOs(b,n){b.disabled=true;let p=0;let iv=setInterval(()=>{p+=20;b.textContent='Downloading… '+p+'%';if(p>=100){clearInterval(iv);b.textContent='✓ Verified — write to USB';b.disabled=false;b.onclick=()=>alert('Prototype: real build writes the hash-verified image to the USB you pick (boot stick excluded).')}},350)}
+function runDiag(b){b.textContent='Running…';setTimeout(()=>{b.textContent='✓ Pass';$('diagout').innerHTML='✓ <b>Prototype run passed.</b> Real build saves diag-report-20261020.txt + .json to USB with temps, SMART, CU count and throttling events.'},1200)}
+function wifiJoin(b){let p=prompt('Password for this Wi-Fi network (prototype — nothing is sent anywhere):');if(p!==null)b.textContent='Connected ✓'}
+let term=$('term');
+function runCmd(){let v=$('cmd').value.trim();$('cmd').value='';term.textContent+=v+'\n';let out='command not found — try: help · bc250x status · bc250x verify · bc250x catalog';
+if(v==='help')out='bc250x status | backup [dest] | verify <file> | flash <file> | catalog | diag\nPlus: flashrom, efibootmgr, dmidecode, sensors, nvme, smartctl, stress-ng';
+if(v==='bc250x status')out='CPU: Zen 2 · 8 cores / 16 threads detected\nGPU: Cyan Skillfish gfx1013 · 40 CU (driver unlock) · oberon\nBIOS: P3.00 Chipset · chip MX25L12873F 16MB whitelisted ✓\nTemps: CPU 57°C · GPU 63°C · Kernel 6.14 LTS (known-good)';
+if(v.startsWith('bc250x verify'))out='Gate check runs here exactly like the GUI: size must be 16777216, then SHA-256 is shown for catalog comparison. Wrong size = refused, nothing written.';
+if(v==='bc250x catalog')out='bios.json / os.json / tools.json — fetched live, minisign-verified.\nNirvana OS: coming_soon · Bazzite/Fedora/CachyOS/Arch: available_upstream';
+term.textContent+=out+'\nbc250x@bc250:~$ ';term.scrollTop=1e6}
+draw();
+</script></body></html>
