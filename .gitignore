@@ -1,0 +1,7 @@
+build/
+output/
+*.iso
+*.img
+bc250x.conf
+catalog.pub
+*.minisig

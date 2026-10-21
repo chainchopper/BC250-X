@@ -1,0 +1,22 @@
+# BC-250-X configuration — copy to bc250x.conf and adjust if you fork.
+# Repo decided Oct 20 2026: chainchopper/BC250-X (public, so raw catalog URLs work unauthenticated on a booted ISO)
+
+# Live catalog (signed JSON). Primary = GitHub raw, mirror = Fanalogy.
+CATALOG_PRIMARY="https://raw.githubusercontent.com/chainchopper/BC250-X/main/catalog"
+CATALOG_MIRROR="https://downloads.fanalogy.com/bc250x/catalog"
+CATALOG_PUBKEY_FILE="/usr/share/bc250x/catalog.pub"
+
+# Payloads: BIOS .ROM files also ship as GitHub Release assets on chainchopper/BC250-X
+PAYLOAD_BASE="https://downloads.fanalogy.com/bc250x"
+PAYLOAD_MIRROR="https://github.com/chainchopper/BC250-X/releases"
+
+# NetBoot: HTTP base that serves kernel + initramfs for iPXE
+NETBOOT_BASE="https://downloads.fanalogy.com/bc250x/netboot"
+# NETBOOT_BASE="http://192.168.1.10/bc250x"   # LAN example
+
+# Safety — do not weaken these in a shipped build
+EXPECTED_BIOS_SIZE=16777216
+CHIP_WHITELIST="W25Q128JVSQ MX25L12835F MX25L12873F"
+CHIP_BLACKLIST="MX25L4005A"
+REQUIRE_BACKUP_BEFORE_FLASH=1
+REQUIRE_TYPED_CONFIRM=FLASH

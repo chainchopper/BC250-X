@@ -1,0 +1,22 @@
+# BC-250 kernel guardrails — BC-250-X live kernel
+# Known-good on BC-250 (community matrix, amd-bc250-docs):
+#   GOOD:   6.12.x-6.14.x LTS, 6.15.7-6.17.7, 6.17.11+
+#   BROKEN: 6.15.0-6.15.6, 6.17.8-6.17.10  (amdgpu_discovery_init failed / GPU init fatal)
+# Pin the live kernel to an LTS in the good range. Never float to latest-stable blindly.
+CONFIG_EFI_STUB=y
+CONFIG_DRM_AMDGPU=y
+# Cyan Skillfish / gfx1013 support lives in amdgpu; SI/CIK off for this APU
+CONFIG_DRM_AMDGPU_SI=n
+CONFIG_DRM_AMDGPU_CIK=n
+CONFIG_HWMON=y
+CONFIG_SENSORS_K10TEMP=y
+CONFIG_NVME_CORE=y
+CONFIG_BLK_DEV_NVME=y
+CONFIG_USB_STORAGE=y
+CONFIG_EFIVAR_FS=y
+# USB Wi-Fi dongle families (no onboard Wi-Fi on BC-250)
+CONFIG_RTL8XXXU=m
+CONFIG_RT2800USB=m
+CONFIG_MT76x2U=m
+CONFIG_ATH9K_HTC=m
+CONFIG_IWLWIFI=m
