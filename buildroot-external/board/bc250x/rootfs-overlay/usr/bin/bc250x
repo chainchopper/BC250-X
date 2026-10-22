@@ -14,7 +14,7 @@ sha() { sha256sum "$1" | awk '{print $1}'; }
 cmd_status() {
   echo "== BC-250-X status =="
   grep -m1 'model name' /proc/cpuinfo || true
-  echo "Cores: $(nproc)  Threads/CPUs online: $(getconf _NPROCESSORS_ONLN)"
+  echo "Cores: $(nproc 2>/dev/null || grep -c ^processor /proc/cpuinfo)  CPUs online: $(grep -c ^processor /proc/cpuinfo)"
   for d in /sys/class/dmi/id; do
     echo "Board: $(cat $d/product_name 2>/dev/null)  BIOS: $(cat $d/bios_version 2>/dev/null) $(cat $d/bios_date 2>/dev/null)"
   done

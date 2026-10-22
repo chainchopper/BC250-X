@@ -1,0 +1,50 @@
+#!/bin/busybox sh
+# BC-250-X Phase 1 init — PID 1
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mount -t proc proc /proc; mount -t sysfs sysfs /sys; mount -t devtmpfs devtmpfs /dev 2>/dev/null
+mkdir -p /dev/pts /tmp /run; mount -t devpts devpts /dev/pts 2>/dev/null
+echo 0 > /proc/sys/kernel/printk 2>/dev/null || true
+
+# load bundled modules (storage/net for QEMU + real BC-250), ignore failures
+for m in isofs cdrom sr_mod loop squashfs fat vfat nls_cp437 nls_iso8859_1 \
+         virtio virtio_pci virtio_blk virtio_net net_failover failover \
+         ahci libahci sd_mod ata_piix usb_common usbcore xhci_hcd ehci_hcd usb_storage \
+         nvme nvme_core e1000 e1000e r8169 atlantic igb; do
+  modprobe $m 2>/dev/null
+done
+mdev -s 2>/dev/null
+sleep 1
+
+clear 2>/dev/null || true
+cat <<'BANNER'
+============================================================
+  BC-250-X  by Fanalogy          Phase 1 live system
+  AMD BC-250 only - if this is not a BC-250, do not flash.
+============================================================
+BANNER
+echo "BC250X_BOOT_OK kernel=$(uname -r)"
+
+# network (best effort, background-safe)
+( for i in eth0 enp0s3 enp0s31f6; do
+    [ -e /sys/class/net/$i ] && { ip link set $i up 2>/dev/null; udhcpc -i $i -n -q -t 3 2>/dev/null && echo "network: $i up"; break; }
+  done ) &
+
+while true; do
+  echo ""
+  echo "  1) System status (bc250x status)"
+  echo "  2) Live catalog check (needs network)"
+  echo "  3) Shell (CLI mode - flashrom/efibootmgr tools in full build)"
+  echo "  4) Reboot"
+  echo "  5) Power off"
+  printf "  Choose [1-5]: "
+  read -r choice </dev/console
+  case "$choice" in
+    1) bc250x status </dev/console >/dev/console 2>&1 || /usr/bin/bc250x status ;;
+    2) bc250x catalog </dev/console >/dev/console 2>&1 || echo "catalog check failed (offline?)" ;;
+    3) echo "Type 'exit' to return to the menu."; sh </dev/console >/dev/console 2>&1 ;;
+    4) echo "Rebooting..."; reboot -f ;;
+    5) echo "Powering off..."; poweroff -f ;;
+    *) echo "?" ;;
+  esac
+done

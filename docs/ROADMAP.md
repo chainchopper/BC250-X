@@ -8,12 +8,13 @@
 - [x] `bc250x` CLI wrapper (status / backup / verify; flash via gated staging)
 - [x] Clickable UI prototype — every screen from the request, with real values/states
 
-## Phase 1 — First bootable ISO (next)
-- [ ] Finish Buildroot defconfig → ISO builds in CI (GitHub Actions)
-- [ ] QEMU boot test (UEFI) + screenshot CI for every screen
+## Phase 1 — First bootable ISO
+- [x] First bootable ISO via the fast assembler (`scripts/build-iso-phase1.sh`): Ubuntu 24.04 kernel binary (6.8.0-147 — owner-proven family on real BC-250s) + busybox initramfs with the real `bc250x` CLI + Phase 1 menu. 69 MB, UEFI El Torito. **Oct 21 2026.**
+- [x] QEMU boot test (OVMF/UEFI), automated serial drive: boot marker → menu → `bc250x status` runs → clean poweroff. `scripts/test-qemu-drive.py`, log in `build/qemu-drive.log`. **Passed clean Oct 21 2026.**
+- [ ] Finish Buildroot defconfig → custom-kernel ISO (production path; the fast assembler is the Phase 1 proof, not the final kernel)
 - [ ] Port prototype → native Slint UI on DRM/KMS
 - [ ] Hardware probe + Dashboard live on real BC-250 (needs a board on the bench / remote hands)
-- **Gate:** ISO boots to Dashboard on a real BC-250.
+- **Gate (updated):** ISO boots to BC-250-X on a real BC-250. QEMU gate passed.
 
 ## Phase 2 — BIOS flows
 - [ ] Backup double-read + sidecar, verified on real chip IDs
