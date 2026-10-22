@@ -11,7 +11,7 @@ boots straight into your installed OS when you just want to play / work.
 > BC-250-X is hard-coded for BC-250 hardware. That is what makes it safe
 > and simple.
 
-![Status](https://img.shields.io/badge/status-v0.1%20scaffold%20%2B%20clickable%20prototype-blue)
+![Status](https://img.shields.io/badge/status-v0.3%20%C2%B7%20Phase%201%20ISO%20boots%20%C2%B7%20QEMU%20verified-brightgreen)
 License: GPL-3.0 (UI + scripts) — bundled tools keep their own licenses, see `docs/COMPONENTS.md`
 
 ---

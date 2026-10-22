@@ -1,6 +1,6 @@
 # BC-250-X — Roadmap
 
-## Phase 0 — v0.1 (this delivery) ✅
+## Phase 0 — v0.1 ✅
 - [x] Hardware truth verified + cited spec (stock vs. unlocked, two-chip trap, kernel guardrails)
 - [x] Architecture on proven open-source parts, AfuEfi honesty flagged
 - [x] Signed live-catalog schemas + real seed entries (BIOS + OS)
@@ -8,7 +8,10 @@
 - [x] `bc250x` CLI wrapper (status / backup / verify; flash via gated staging)
 - [x] Clickable UI prototype — every screen from the request, with real values/states
 
-## Phase 1 — First bootable ISO
+## v0.2 — Catalog lineup ✅
+- [x] OS lineup finalized: **Bazzite = default install**; Ubuntu 26.04 LTS and SteamOS added (both flagged Experimental on BC-250); `default_entry: bazzite-bc250` live in `catalog/os.json`
+
+## Phase 1 — v0.3 — First bootable ISO ✅ (QEMU gate passed; real-board gate open)
 - [x] First bootable ISO via the fast assembler (`scripts/build-iso-phase1.sh`): Ubuntu 24.04 kernel binary (6.8.0-147 — owner-proven family on real BC-250s) + busybox initramfs with the real `bc250x` CLI + Phase 1 menu. 69 MB, UEFI El Torito. **Oct 21 2026.**
 - [x] QEMU boot test (OVMF/UEFI), automated serial drive: boot marker → menu → `bc250x status` runs → clean poweroff. `scripts/test-qemu-drive.py`, log in `build/qemu-drive.log`. **Passed clean Oct 21 2026.**
 - [ ] Finish Buildroot defconfig → custom-kernel ISO (production path; the fast assembler is the Phase 1 proof, not the final kernel)

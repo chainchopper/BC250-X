@@ -49,15 +49,20 @@ UI: BIOS > Fanalogy BIOS list (from signed catalog)
 
 ## What is code today vs. staged
 
-- **Today (v0.1 in this repo):** full spec, signed-catalog schemas with real
+- **Today (v0.3 in this repo):** full spec, signed-catalog schemas with real
   community BIOS/OS entries, Buildroot external tree skeleton, kernel config
   fragments with the known-good/broken guardrails, iPXE script, Flash.nsh
   template, `bc250x` CLI wrapper (status/backup/verify functional in a Linux
   shell; flash intentionally routed through the gated Flash-Mode staging),
-  build scripts, and the clickable UI prototype that fixes the design.
-- **Next build step (ROADMAP Phase 1):** wire the Buildroot defconfig to a
-  bootable ISO in CI and boot-test in QEMU + on a real BC-250; port the
-  prototype screens 1:1 to the native Slint UI.
+  build scripts, the clickable UI prototype that fixes the design — **plus the
+  Phase 1 bootable ISO** (`scripts/build-iso-phase1.sh`: Ubuntu 24.04 kernel
+  binary + busybox initramfs carrying the real `bc250x` CLI and catalog
+  files), **boot-verified in QEMU/OVMF** by the automated serial drive test
+  (`scripts/test-qemu-drive.py`). See `docs/PHASE1.md`.
+- **Next build steps:** boot the Phase 1 ISO on a real BC-250 (the remaining
+  Phase 1 gate); finish the Buildroot defconfig → custom-kernel production
+  ISO; port the prototype screens 1:1 to the native Slint UI.
 
-Nothing in the “today” list is presented as a finished ISO — there is no ISO
-in v0.1 and the docs say so, because a fake download link helps nobody.
+Honesty note: the Phase 1 ISO is a boot-chain proof, not the production
+image — it uses a distro kernel binary, and it has not yet booted on real
+BC-250 hardware. The docs say so plainly, because a fake claim helps nobody.
