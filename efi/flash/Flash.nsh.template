@@ -6,6 +6,8 @@ rem and validated (size + SHA-256 + ROM ID) by BC-250-X *before* reboot.
 echo BC-250-X Flash Mode
 echo DO NOT POWER OFF. A flash can look hung - wait at least 15 minutes.
 echo Logging to bc250x-flash.log ...
-AfuEfix64.efi BC250X.ROM /P /B /N /K /R
+rem Flags /P /N /B /K /RLC:E are the field-proven set from the community
+rem UEFI firmware-menu flow for BC-250 (see docs/FLASH-AND-PRAY.md).
+AfuEfix64.efi BC250X.ROM /P /N /B /K /RLC:E
 echo Flash command finished. Remove power, clear CMOS (battery out 60s),
 echo then boot BC-250-X again to finish the post-flash verification wizard.

@@ -2,6 +2,7 @@
 # bc250x — BC-250-X CLI. Same safety gates as the GUI. No bypass flag exists.
 # Usage: bc250x status | backup [dest] | verify <file> | catalog | diag
 #        bc250x flash <file>   (stages Flash Mode; never writes directly from here)
+#        bc250x pray <preset.rom> [backup-dest]   (Flash & Pray: backup -> verify -> stage the Fanalogy preset)
 set -eu
 CONF="${BC250X_CONF:-/usr/share/bc250x/bc250x.conf}"
 [ -f "$CONF" ] && . "$CONF"
@@ -69,6 +70,41 @@ cmd_flash() {
   echo "BC-250-X does not write the BIOS directly from Linux on this board — the UEFI-shell flow is the proven path."
 }
 
+cmd_pray() {
+  img="${1:-}"
+  echo "== BC-250-X Flash & Pray — Fanalogy Nirvana preset =="
+  echo "Sequence: verified backup + settings snapshot -> preset verify -> stage Flash Mode."
+  echo "The preset unlocks all 8 cores / 16 threads, the Nirvana boot logo, and Fanalogy"
+  echo "presets (IOMMU off, VRAM 512MB dynamic). The 40-CU GPU unlock is OS-level, not"
+  echo "firmware — BC-250-X offers it after a verified first boot, with stability fallback."
+  cat_file="${BC250X_CATALOG_DIR:-/usr/share/bc250x}/bios.json"
+  [ -f "$cat_file" ] || { echo "ABORT: no local catalog at $cat_file — fetch the catalogs first (GUI, or 'bc250x catalog' with network)." >&2; exit 1; }
+  entry=$(grep -o '"id":"fanalogy-p300-nirvana-preset"[^}]*}' "$cat_file" || true)
+  [ -n "$entry" ] || { echo "ABORT: preset entry fanalogy-p300-nirvana-preset not found in catalog." >&2; exit 1; }
+  want=$(printf '%s' "$entry" | sed -n 's/.*"sha256":"\([^"]*\)".*/\1/p')
+  case "$want" in
+    PENDING*|"") echo "ABORT: the Fanalogy preset is not published yet (catalog hash pending)." >&2
+      echo "Flash & Pray unlocks when a real preset image is built, hashed and minisign-signed." >&2; exit 1 ;;
+  esac
+  [ -n "$img" ] || { echo "usage: bc250x pray <preset.rom> [backup-dest]" >&2; exit 2; }
+  dest="${2:-./bc250x-pray-backup}"; mkdir -p "$dest"
+  echo "-- Step 1/3: backup current BIOS (read twice, hashes must match) + settings snapshot"
+  cmd_status > "$dest/settings-before.txt" 2>&1 || true
+  command -v efibootmgr >/dev/null && efibootmgr -v > "$dest/efibootmgr-before.txt" 2>&1 || true
+  cmd_backup "$dest"
+  echo "-- Step 2/3: verify preset image against the signed catalog"
+  cmd_verify "$img"
+  got=$(sha "$img")
+  [ "$got" = "$want" ] || { echo "ABORT: image hash $got does not match catalog $want. Refusing." >&2; exit 1; }
+  echo "Hash matches the signed catalog."
+  echo "-- Step 3/3: stage Flash Mode"
+  printf "Type PRAY to stage the flash: "; read -r a; [ "$a" = "PRAY" ] || { echo "Aborted. Backup kept at $dest — nothing was staged."; exit 1; }
+  stage="${BC250X_EFI_STAGE:-/boot/efi/bc250x-flash}"; mkdir -p "$stage"
+  cp "$img" "$stage/BC250X.ROM"
+  echo "Staged. Reboot into Flash Mode / the BC-250-X UEFI menu and pick [menu 01]."
+  echo "After the flash: remove power, clear CMOS (battery out 60s), then boot BC-250-X to finish the post-flash wizard."
+}
+
 cmd_catalog() {
   base="${CATALOG_PRIMARY:-https://raw.githubusercontent.com/chainchopper/BC250-X/main/catalog}"
   for c in bios.json os.json tools.json; do echo "--- $c ($base/$c)"; curl -fsSL "$base/$c" | head -c 600; echo; done
@@ -81,7 +117,8 @@ case "${1:-status}" in
   backup) cmd_backup "${2:-.}" ;;
   verify) cmd_verify "$2" ;;
   flash)  cmd_flash "$2" ;;
+  pray)   cmd_pray "${2:-}" "${3:-}" ;;
   catalog) cmd_catalog ;;
   diag) cmd_diag ;;
-  *) echo "usage: bc250x status|backup [dest]|verify <file>|flash <file>|catalog|diag" >&2; exit 2 ;;
+  *) echo "usage: bc250x status|backup [dest]|verify <file>|flash <file>|pray <preset.rom> [backup-dest]|catalog|diag" >&2; exit 2 ;;
 esac

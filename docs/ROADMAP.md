@@ -23,6 +23,8 @@
 - [ ] Backup double-read + sidecar, verified on real chip IDs
 - [ ] Flash Mode automation of AfuEfix64 flow + logging + post-flash CMOS/settings wizard
 - [ ] Recovery screen (J4004 + CH347 + flashrom) tested with an external programmer
+- [x] **Flash & Pray designed + scaffolded** (Oct 23): Fanalogy preset mode — verified backup + settings snapshot → catalog-verify → stage; `bc250x pray` CLI (refuses while the preset hash is pending, tested), our own UEFI firmware menu `efi/menu/bc250x-menu.nsh`, preset catalog entry `fanalogy-p300-nirvana-preset` (planned). Design: `docs/FLASH-AND-PRAY.md`. Mechanics borrowed with attribution from the community Forbidden-Darkness UEFI menu script (GPL-3).
+- [ ] Build the actual Fanalogy preset image (P3.00 base + Nirvana logo module + presets), hash + sign it — unblocks Flash & Pray
 - **Gate:** backup → flash P3.00 → verify, end-to-end on a sacrificial board.
 
 ## Phase 3 — OS catalog + install

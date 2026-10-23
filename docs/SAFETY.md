@@ -44,6 +44,17 @@ all write UI (not just a warning — the buttons are gone).
   settings may silently not persist — the post-flash wizard does not complete until
   the user confirms it and first-boot settings (IOMMU off, VRAM 512 MB dynamic) verify.
 
+## Flash & Pray (explicit opt-in — the exception that keeps the rules)
+
+Flash & Pray (`docs/FLASH-AND-PRAY.md`) is the one deliberately fast path:
+backup + settings snapshot → verify the Fanalogy preset against the signed
+catalog → type `PRAY` → staged flash of the preset (8c/16t unlock, Nirvana
+logo, baked-in presets). It removes *friction*, never *checks*: the verified
+backup, exact-size, hash-match and chip-whitelist gates above all still run
+first, and it is never the default or a silent action. The GPU CU unlock is
+not part of it — that stays an OS-level, per-board decision with automatic
+fallback, exactly as the "never force" list below requires.
+
 ## What BC-250-X will never do
 
 - Flash from an unverified / hash-mismatched / wrong-size image.
