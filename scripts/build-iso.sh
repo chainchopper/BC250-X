@@ -36,6 +36,13 @@ KERNEL="$IMG/bzImage"
 INITRD="$IMG/rootfs.cpio.gz"
 [ -f "$KERNEL" ] || { echo "kernel image missing: $KERNEL" >&2; exit 1; }
 [ -f "$INITRD" ] || { echo "initramfs missing: $INITRD" >&2; exit 1; }
+
+# --- Netboot artifacts (iPXE kernel+initrd style, see ipxe/boot.ipxe) -------
+NB="$OUT/netboot"; mkdir -p "$NB"
+cp "$KERNEL" "$NB/vmlinuz"
+cp "$INITRD" "$NB/rootfs.cpio.gz"
+( cd "$NB" && sha256sum vmlinuz rootfs.cpio.gz > SHA256SUMS )
+echo ">> netboot: $NB/vmlinuz + $NB/rootfs.cpio.gz (serve over HTTP; base URL in ipxe/boot.ipxe)"
 KVER="$(make -s -C build/buildroot BR2_EXTERNAL="$ROOT/buildroot-external" printvars VARS=BR2_LINUX_KERNEL_VERSION 2>/dev/null | sed -n 's/^BR2_LINUX_KERNEL_VERSION=//p' | tail -1)"
 echo ">> kernel: $KERNEL (${KVER:-unknown})"
 echo ">> initramfs: $(du -h "$INITRD" | cut -f1)"

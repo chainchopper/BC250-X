@@ -24,6 +24,8 @@ BR2_TARGET_GENERIC_ISSUE="BC-250-X live system - AMD BC-250 only"
 
 # Init: busybox (PID 1 is the overlay /init, same script as Phase 1)
 BR2_INIT_BUSYBOX=y
+# Busybox additions the bc250x CLI needs (stat for verify/backup, ISO date)
+BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_BC250X_PATH)/board/bc250x/busybox.fragment"
 
 # Kernel: 6.12.0 LTS (top of the known-good BC-250 range, see
 # kernel/bc250x-kernel.fragment). Base config = x86_64 arch defconfig,
@@ -49,8 +51,12 @@ BR2_PACKAGE_CA_CERTIFICATES=y
 BR2_PACKAGE_LINUX_FIRMWARE=y
 BR2_PACKAGE_LINUX_FIRMWARE_AMDGPU=y
 
-# Rootfs: overlay carries /init, /usr/bin/bc250x and usr/share/bc250x/*.json
+# Rootfs: overlay carries /init, /usr/bin/bc250x, /usr/bin/nirvana-config,
+# usr/share/bc250x/*.json and usr/share/bc250x/efi/ (UEFI menu + Flash.nsh).
+# Post-build step injects build/payload/*.ROM (if downloaded) into
+# usr/share/bc250x/payload/ — binaries stay out of git.
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_BC250X_PATH)/board/bc250x/rootfs-overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_BC250X_PATH)/board/bc250x/post-build.sh"
 BR2_TARGET_ROOTFS_CPIO=y
 BR2_TARGET_ROOTFS_CPIO_GZIP=y
 # BR2_TARGET_ROOTFS_TAR is not set

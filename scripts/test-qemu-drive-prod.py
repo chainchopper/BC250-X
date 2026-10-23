@@ -63,6 +63,25 @@ core = wait_for('Cores:', 10)
 kern = wait_for('Kernel:', 10)
 passed = bool(stat and core)
 print(('PASS 3: bc250x status ran from the menu' if passed else 'FAIL: status output missing'))
+
+# PASS 4: flash-test payload — open the shell and run a NON-destructive
+# `bc250x verify` on the bundled payload ROM (size gate + sha256 printout).
+verify_ok = False
+if passed:
+    wait_for('Choose [1-5]', 30)
+    p.stdin.write(b'3\n'); p.stdin.flush()
+    if wait_for("Type 'exit' to return", 15):
+        p.stdin.write(b'bc250x verify /usr/share/bc250x/payload/BC250_3.00_CHIPSETMENU.ROM\n'); p.stdin.flush()
+        verify_ok = wait_for('OK: size gate passed', 30)
+        mh = re.search(r'sha256: ([0-9a-f]{64})', text())
+        print(('PASS 4: bc250x verify OK on bundled payload ROM, sha256='
+               + (mh.group(1) if mh else '?')) if verify_ok
+              else 'FAIL: bc250x verify did not pass on the payload ROM')
+        p.stdin.write(b'exit\n'); p.stdin.flush()
+        wait_for('Choose [1-5]', 15)
+    else:
+        print('FAIL: shell (menu 3) did not open')
+    passed = passed and verify_ok
 try: p.stdin.write(b'5\n'); p.stdin.flush()
 except BrokenPipeError: pass
 time.sleep(3)

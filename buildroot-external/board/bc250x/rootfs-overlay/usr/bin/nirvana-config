@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# nirvana-config — the raspi-config for the AMD BC-250, by Fanalogy.
+# Design: docs/NIRVANA-CONFIG.md · Tooling survey: docs/TOOLING-SURVEY.md
+#
+# Rules baked in from the survey:
+#   1. Range-check + confirm before any hardware change.
+#   2. Live state and boot state are always shown separately.
+#   3. Anything not wired yet SAYS SO. Nothing here fakes a result.
+set -u
+
+BC250X_BIN="${BC250X_BIN:-bc250x}"
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+confirm() { # confirm "question" -> 0 yes / 1 no
+  printf '%s [y/N] ' "$1"; read -r a
+  case "$a" in y|Y|yes|YES) return 0 ;; *) echo "Cancelled."; return 1 ;; esac
+}
+
+cores() { grep -c ^processor /proc/cpuinfo 2>/dev/null || echo "?"; }
+cu_boot() { # amdgpu boot CU map is not in plain sysfs; umr knows it
+  if have umr; then umr -c 2>/dev/null | head -1 || echo "unknown"; else echo "unknown (install umr)"; fi
+}
+gov_now() {
+  for s in cyan-skillfish-governor-smu cyan-skillfish-governor oberon; do
+    if systemctl is-active --quiet "$s" 2>/dev/null; then echo "$s"; return; fi
+  done
+  echo "none detected"
+}
+
+sec_status() {
+  echo "--- System status ------------------------------------------------"
+  if have "$BC250X_BIN"; then "$BC250X_BIN" status; else
+    grep -m1 'model name' /proc/cpuinfo || true
+    echo "Threads online: $(cores)"
+    echo "Kernel: $(uname -r)"
+  fi
+  echo "Governor (live): $(gov_now)"
+  echo "CU boot map: $(cu_boot)"
+}
+
+sec_cu() {
+  echo "--- Compute Units (GPU) ------------------------------------------"
+  echo "Factory boot topology: 12 WGP = 24 CU. Full dispatch: 20 WGP = 40 CU."
+  echo "Live routing uses UMR register access (reversible, no reboot)."
+  echo "Boot map: $(cu_boot)   Live state is shown by the CU manager itself."
+  if have bc250-cu-live-manager.sh || have bc250-cu-live-manager; then
+    confirm "Open the CU live manager now?" && sudo bc250-cu-live-manager.sh
+  else
+    echo "NOT WIRED: bc250-cu-live-manager is not installed."
+    echo "Upstream: https://github.com/WinnieLV/bc250-cu-live-manager"
+    echo "Recommended flow once installed: apply full 40 -> health test (menu 9)"
+    echo "-> mask any failing WGP -> save table to the boot service."
+  fi
+}
+
+sec_cores() {
+  echo "--- CPU cores ------------------------------------------------------"
+  echo "Threads online now: $(cores)  (stock 12, unlocked 16)"
+  echo "Two routes:"
+  echo "  A) SMU runtime unlock — reversible, restored by a boot service."
+  echo "     This is the friendly route (used by Control Center / CU manager)."
+  echo "  B) BIOS route — permanent, via Flash & Pray (bc250x pray)."
+  if have bc250-cu-live-manager.sh; then
+    echo "Route A is available from the CU live manager's CPU menu."
+  else
+    echo "NOT WIRED: no SMU unlock tool installed yet. Route B: run 'bc250x pray'."
+  fi
+}
+
+sec_governor() {
+  echo "--- Governor & clocks ----------------------------------------------"
+  echo "Live governor: $(gov_now)"
+  echo "Safe preset (community standard): cap 1500 MHz / 900 mV safe-points."
+  echo "NOT WIRED: governor switching lands with the Nirvana OS governor"
+  echo "package. Until then use cyan-skillfish-governor / oberon directly,"
+  echo "and stop the governor before running any SMU tuner (they share"
+  echo "SMU registers — running both is a documented footgun)."
+}
+
+sec_cpu_tuning() {
+  echo "--- CPU tuning (advanced) -------------------------------------------"
+  echo "SMU boost-ceiling tuning (bc250_smu_oc pattern): detect -> stress ->"
+  echo "apply -> persist. Cooling matters: the stock fan throttles ~3.9 GHz."
+  echo "NOT WIRED in this skeleton. Nothing was changed."
+}
+
+sec_fans() {
+  echo "--- Fans & cooling ---------------------------------------------------"
+  for z in /sys/class/hwmon/hwmon*; do
+    n=$(cat "$z/name" 2>/dev/null || true)
+    for p in "$z"/pwm*; do [ -f "$p" ] && echo "$n $(basename "$p"): $(cat "$p" 2>/dev/null)"; done
+  done
+  echo "Curves/profiles: hand off to CoolerControl / fancontrol / fan2go"
+  echo "(the Control Center approach). NOT WIRED here yet."
+}
+
+sec_memory() {
+  echo "--- Memory -----------------------------------------------------------"
+  free -h | head -2
+  echo "VRAM carve is a BIOS setting (512MB Dynamic recommended) — see menu 8."
+  echo "ZRAM/ZSWAP status:"; grep -H . /sys/module/zswap/parameters/enabled 2>/dev/null || echo "  zswap: n/a"
+  ls /dev/zram* >/dev/null 2>&1 && echo "  zram: present" || echo "  zram: not configured"
+  echo "GTT tuning (ttm.pages_limit) for AI workloads: NOT WIRED yet."
+}
+
+sec_bios() {
+  echo "--- BIOS & firmware ----------------------------------------------------"
+  if have "$BC250X_BIN"; then
+    echo "All flash paths go through bc250x — same gates, same catalog."
+    echo "  1) Status        2) Backup        3) Flash & Pray        4) Catalog"
+    printf 'Pick [1-4, Enter to go back]: '; read -r b
+    case "$b" in
+      1) "$BC250X_BIN" status ;;
+      2) confirm "Run a verified (double-read) BIOS backup now?" && "$BC250X_BIN" backup . ;;
+      3) echo "Flash & Pray stages from the GUI or: bc250x pray <preset.rom>" ;;
+      4) "$BC250X_BIN" catalog ;;
+      *) : ;;
+    esac
+  else
+    echo "bc250x not on PATH — BIOS actions unavailable from here."
+  fi
+}
+
+sec_tests() {
+  echo "--- Stability tests ------------------------------------------------------"
+  echo "  - CU health test (per-WGP isolation, multi-reboot): the duggasco"
+  echo "    bc250-40cu-unlock suite. NOT WIRED — install it to run from here."
+  echo "  - Quick diag via bc250x:"; have "$BC250X_BIN" && "$BC250X_BIN" diag || echo "    bc250x not on PATH."
+}
+
+sec_updates() {
+  echo "--- Updates ----------------------------------------------------------------"
+  echo "Catalogs are fetched live from the BC-250-X repo / Fanalogy mirror and"
+  echo "minisign-verified. NOT WIRED: self-update of nirvana-config lands with"
+  echo "the Nirvana OS package."
+}
+
+sec_about() {
+  echo "--- About this board ---------------------------------------------------------"
+  grep -m1 'model name' /proc/cpuinfo || true
+  echo "Threads: $(cores) · Kernel: $(uname -r) · Governor: $(gov_now)"
+  for d in /sys/class/dmi/id; do
+    echo "Board: $(cat $d/product_name 2>/dev/null)  BIOS: $(cat $d/bios_version 2>/dev/null) $(cat $d/bios_date 2>/dev/null)"
+  done
+  echo "Harvest map + health overlay: appears here once the CU health test"
+  echo "has run (menu 9). Your board is an individual — this is its report."
+}
+
+while true; do
+  echo
+  echo "======================================================================"
+  echo " Nirvana Config — AMD BC-250 (gfx1013)              by Fanalogy"
+  echo "======================================================================"
+  echo "  1  System status        7  Memory"
+  echo "  2  Compute Units (GPU)  8  BIOS & firmware"
+  echo "  3  CPU cores            9  Stability tests"
+  echo "  4  Governor & clocks   10  Updates"
+  echo "  5  CPU tuning          11  About this board"
+  echo "  6  Fans & cooling       0  Exit"
+  printf 'Pick a number: '; read -r c || exit 0
+  case "$c" in
+    1) sec_status ;;  2) sec_cu ;;      3) sec_cores ;;  4) sec_governor ;;
+    5) sec_cpu_tuning ;; 6) sec_fans ;; 7) sec_memory ;; 8) sec_bios ;;
+    9) sec_tests ;;  10) sec_updates ;; 11) sec_about ;;
+    0|q|exit) echo "Bye."; exit 0 ;;
+    *) echo "Unknown option: $c" ;;
+  esac
+done

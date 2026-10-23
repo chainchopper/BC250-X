@@ -1,9 +1,13 @@
 #!ipxe
-# BC-250-X NetBoot — chainload from netboot.xyz or serve from any PXE/HTTP server.
-# Set NETBOOT_BASE at build time (scripts/build-ipxe.sh) or edit the line below.
+# BC-250-X NetBoot — kernel + initrd over HTTP (matches the layout emitted
+# by scripts/build-iso.sh into output/netboot/: vmlinuz + rootfs.cpio.gz).
+# Chainload from netboot.xyz or any PXE/iPXE server:
+#   chain https://downloads.fanalogy.com/bc250x/netboot/boot.ipxe
+# or embed this script into an iPXE binary with scripts/build-ipxe.sh.
+# The initramfs IS the rootfs (busybox init + bc250x menu) — no second
+# rootfs download, no sanboot.
 set base https://downloads.fanalogy.com/bc250x/netboot
 dhcp
-kernel ${base}/vmlinuz bc250x.live netboot=${base} console=tty0 quiet splash
-initrd ${base}/initramfs.img
-initrd ${base}/rootfs.squashfs bc250x.rootfs
+kernel ${base}/vmlinuz bc250x.live console=tty0 console=ttyS0,115200 quiet loglevel=3
+initrd ${base}/rootfs.cpio.gz
 boot

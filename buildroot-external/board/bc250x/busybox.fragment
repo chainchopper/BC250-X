@@ -1,0 +1,6 @@
+# BC-250-X busybox additions on top of the Buildroot default config.
+# Buildroot's busybox is leaner than a distro busybox; the bc250x CLI
+# (status/verify/backup) needs these applets in the live image:
+CONFIG_STAT=y
+CONFIG_FEATURE_STAT_FORMAT=y
+CONFIG_FEATURE_DATE_ISO_8601=y
