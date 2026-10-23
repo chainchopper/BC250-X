@@ -1,28 +1,56 @@
-# BC-250-X Buildroot defconfig (skeleton, Phase 1)
+# BC-250-X Buildroot defconfig — production live image
+#
+# Design: custom 6.12 LTS kernel + busybox initramfs (rootfs.cpio.gz), the
+# same boot contract as the Phase 1 assembler image (GRUB EFI standalone ->
+# kernel + initrd -> /init menu -> bc250x). The ISO is packaged by
+# scripts/build-iso.sh from output/images (bzImage + rootfs.cpio.gz) using
+# the Phase 1 GRUB-standalone/ESP pattern; Buildroot's own iso9660 target
+# is BIOS-oriented and intentionally NOT used.
+#
+# Deferred (Phase 2+ payload, dropped to keep this build lean/fast):
+# flashrom, efibootmgr, dmidecode, lm_sensors, smartmontools, nvme-cli,
+# fio, stress-ng, memtester, iwd, minisign, systemd.
+
 BR2_x86_64=y
-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_6_12=y
+
+# Prebuilt Bootlin toolchain (no host gcc build of a toolchain: hours saved,
+# and this VM has 2 cores / 7 GB RAM).
+BR2_TOOLCHAIN_EXTERNAL=y
+BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_GLIBC_STABLE=y
+
+BR2_TARGET_GENERIC_HOSTNAME="bc250x"
+BR2_TARGET_GENERIC_ISSUE="BC-250-X live system - AMD BC-250 only"
+
+# Init: busybox (PID 1 is the overlay /init, same script as Phase 1)
+BR2_INIT_BUSYBOX=y
+
+# Kernel: 6.12.0 LTS (top of the known-good BC-250 range, see
+# kernel/bc250x-kernel.fragment). Base config = x86_64 arch defconfig,
+# BC-250 guardrails applied as a fragment on top.
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
-BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.12.0"
-BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
-BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_BC250X_PATH)/../../kernel/bc250x-kernel.fragment"
-BR2_PACKAGE_SYSTEMD=y
-BR2_PACKAGE_SYSTEMD_BOOTCHART=n
-BR2_TARGET_ROOTFS_SQUASHFS=y
-BR2_TARGET_ROOTFS_ISO9660=y
-BR2_TARGET_ROOTFS_ISO9660_HYBRID=y
-# BC-250-X payload tools
-BR2_PACKAGE_FLASHROM=y
-BR2_PACKAGE_EFIBOOTMGR=y
-BR2_PACKAGE_DMIDECODE=y
-BR2_PACKAGE_LM_SENSORS=y
-BR2_PACKAGE_SMARTMONTOOLS=y
-BR2_PACKAGE_NVME=y
-BR2_PACKAGE_FIO=y
-BR2_PACKAGE_STRESS_NG=y
-BR2_PACKAGE_MEMTESTER=y
-BR2_PACKAGE_CURL=y
-BR2_PACKAGE_IWD=y
+# NOTE: "6.12", not "6.12.0" — kernel.org publishes the base release as
+# linux-6.12.tar.xz; linux-6.12.0.tar.xz does not exist (404). The kernel
+# itself still reports 6.12.0 (Makefile SUBLEVEL=0).
+BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.12"
+BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
+# x86_64 defconfig enables objtool (ORC unwinder); objtool needs host libelf
+BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF=y
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_BC250X_PATH)/../kernel/bc250x-kernel.fragment"
+
+# Payload for the boot gate + bench readiness
+BR2_PACKAGE_KMOD=y
+BR2_PACKAGE_KMOD_TOOLS=y
+BR2_PACKAGE_LIBCURL=y
+BR2_PACKAGE_LIBCURL_CURL=y
+BR2_PACKAGE_LIBCURL_OPENSSL=y
+BR2_PACKAGE_CA_CERTIFICATES=y
 BR2_PACKAGE_LINUX_FIRMWARE=y
-BR2_PACKAGE_MINISIGN=y
+BR2_PACKAGE_LINUX_FIRMWARE_AMDGPU=y
+
+# Rootfs: overlay carries /init, /usr/bin/bc250x and usr/share/bc250x/*.json
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_BC250X_PATH)/board/bc250x/rootfs-overlay"
+BR2_TARGET_ROOTFS_CPIO=y
+BR2_TARGET_ROOTFS_CPIO_GZIP=y
+# BR2_TARGET_ROOTFS_TAR is not set
