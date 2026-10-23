@@ -41,6 +41,13 @@
 - [x] **nirvana-config designed + skeleton built** (Oct 23): the raspi-config-style board menu for Nirvana OS + post-install on any catalog OS — `docs/NIRVANA-CONFIG.md`, runnable skeleton at `tools/nirvana-config` (status/About real; umr/SMU/governor actions wire in as the tools land)
 - [ ] Evaluate shipping movacx Control Center (MIT) in the Nirvana OS marketplace vs. integrating its controls natively
 
+## v0.4 — The Complete Package (defined Oct 23, `docs/COMPLETE-PACKAGE.md`)
+- [ ] Production ISO (custom 6.12 kernel) + flash payload + full tool bundle + netboot artifacts (vmlinuz/initramfs/boot.ipxe)
+- [ ] Test gates: QEMU custom-kernel gate · payload `bc250x verify` · bench boot · flash-flow bench sequence · netboot smoke test
+- [ ] nirvana-config ↔ BC-250-X frontend app on installed OS (options without booting the ISO)
+- [ ] Windows track: Windows 11 + Nagi guided catalog entry (Experimental); native Windows app face is post-v0.4
+- [ ] Promotion: GitHub Release → Discord → Reddit → amd-bc250-docs PR → X → creator outreach (drafts in `docs/PROMO-KIT.md`, Terrell approves before posting)
+
 ## Decisions needed from Terrell / Fanalogy
 1. ~~**Catalog hosting**~~ — DECIDED Oct 20: `chainchopper/BC250-X` public repo + `downloads.fanalogy.com` mirror. OS lineup decided the same day: Bazzite default; Ubuntu 26.04 LTS + SteamOS added as Experimental-on-BC-250.
 2. **Signing key:** who holds the minisign private key for catalog releases?

@@ -14,6 +14,13 @@ This is that menu, for the BC-250.
   board-options menu follows the board, not just our OS.
 - Terminal UI (works over SSH, in a TTY, in Game Mode desktop) with the same
   menu map later mirrored in the Nirvana OS settings GUI.
+- **It opens the frontend app** (Terrell, Oct 23): nirvana-config is the
+  terminal face of the BC-250-X options backend; on an installed OS its
+  job is also to launch the **BC-250-X frontend app** (the GUI) — so users
+  get every option from their desktop, *without booting the ISO*. One
+  backend (`bc250x` + tool drivers), two faces: TUI here, GUI in the app.
+  Only firmware flashing still reboots into Flash Mode, by design. The
+  full package definition is `docs/COMPLETE-PACKAGE.md`.
 
 ## Rules it inherits (from the tooling survey, `docs/TOOLING-SURVEY.md`)
 
