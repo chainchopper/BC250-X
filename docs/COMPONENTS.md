@@ -21,6 +21,8 @@ Everything BC-250-X needs already exists as open source. This is the bill of mat
 | xorriso | Hybrid ISO creation | GPL-3.0 |
 | Community BC-250 work this builds on | Modded P3.00 Chipset-Menu BIOS (TuxThePenguin0/bc250-bios), amd-bc250-docs (elektricM), oberon governor + CU-unlock research (duggasco et al.) | Per upstream — credit in-app on the About screen |
 | Forbidden-Darkness/AMD-BC-250-UEFI-v2.2-Firmware-Menu-Script | Design/mechanics reference for our UEFI firmware menu + Flash & Pray: field-proven AfuEfix64 flag set (`/P /N /B /K /RLC:E`), backup-path convention (`Firmware_Backup\bc250-backup.rom`), logo-variant model. Our `efi/menu/bc250x-menu.nsh` is original code, catalog-driven (one staged verified image) rather than a copy of their hardcoded-variant script. | GPL-3.0 (same license as BC-250-X) |
+| movacx/bc250-control-center | The installed-OS control-center benchmark (dashboard, governor, SMU tuning, CU live-vs-boot state, fans, memory, verified BIOS media, FSR4, Decky). UX rules adopted project-wide (range-check + confirm; live vs boot state). Nirvana OS integration/marketplace candidate — see `docs/TOOLING-SURVEY.md` | MIT |
+| WinnieLV/bc250-cu-live-manager · duggasco/bc250-40cu-unlock · bc250-collective/bc250_smu_oc | Design references for nirvana-config: UMR live WGP/CU routing + SMU core unlock; per-WGP health test + selective CU masking; SMU CPU OC pattern. Linked from `catalog/tools.json`; no code bundled (licenses not stated in those repos as of Oct 23 2026) | Unstated upstream — reference only |
 
 **Honesty note:** AfuEfix64 is the one non-open-source piece, because it is the
 *proven* tool for this board. BC-250-X isolates it to Flash Mode, supports a

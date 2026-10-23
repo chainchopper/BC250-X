@@ -37,6 +37,9 @@
 - [ ] Nirvana OS catalog entry flips `coming_soon → available` the day an image + hash is published
 - [ ] First-boot handoff: BC-250-X → Nirvana OS agent/marketplace setup
 - [ ] BC-250-X ESP helper entry so the tool lives in the normal boot menu
+- [x] **Tooling survey done** (Oct 23): movacx Control Center (MIT), WinnieLV CU Live Manager, duggasco unlock/health-test, bc250_smu_oc — findings + adopt/integrate decisions in `docs/TOOLING-SURVEY.md`. Key upgrades: SMU runtime core unlock (no flash needed) and live+tested+masked CU unlock replace the one-shot model
+- [x] **nirvana-config designed + skeleton built** (Oct 23): the raspi-config-style board menu for Nirvana OS + post-install on any catalog OS — `docs/NIRVANA-CONFIG.md`, runnable skeleton at `tools/nirvana-config` (status/About real; umr/SMU/governor actions wire in as the tools land)
+- [ ] Evaluate shipping movacx Control Center (MIT) in the Nirvana OS marketplace vs. integrating its controls natively
 
 ## Decisions needed from Terrell / Fanalogy
 1. ~~**Catalog hosting**~~ — DECIDED Oct 20: `chainchopper/BC250-X` public repo + `downloads.fanalogy.com` mirror. OS lineup decided the same day: Bazzite default; Ubuntu 26.04 LTS + SteamOS added as Experimental-on-BC-250.
