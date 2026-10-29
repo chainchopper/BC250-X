@@ -1,13 +1,10 @@
-rem BC-250-X Flash Mode — generated at flash time, do not hand-edit.
-rem Proven community flow for BC-250 (AfuEfix64 in UEFI shell).
-rem The staged BIOS image is copied beside this file as BC250X.ROM
-rem and validated (size + SHA-256 + ROM ID) by BC-250-X *before* reboot.
-@echo -off
-echo BC-250-X Flash Mode
-echo DO NOT POWER OFF. A flash can look hung - wait at least 15 minutes.
-echo Logging to bc250x-flash.log ...
-rem Flags /P /N /B /K /RLC:E are the field-proven set from the community
-rem UEFI firmware-menu flow for BC-250 (see docs/FLASH-AND-PRAY.md).
-AfuEfix64.efi BC250X.ROM /P /N /B /K /RLC:E
-echo Flash command finished. Remove power, clear CMOS (battery out 60s),
-echo then boot BC-250-X again to finish the post-flash verification wizard.
+rem ============================================================================
+rem  LEGACY REFERENCE ONLY - not used by BC-250-X v0.4.1+.
+rem
+rem  v0.4.0's Flash Mode ran the community AfuEfix64 UEFI-shell flow
+rem  (AfuEfix64.efi BC250X.ROM /P /N /B /K /RLC:E). That dependency was
+rem  removed in v0.4.1 per the product direction: BC-250-X ships its own
+rem  writer (flashrom) inside the live image, and nothing is bring-your-own.
+rem  Flash Mode is now a boot entry that runs 'bc250x flashmode' in the
+rem  live system. See docs/FLASH-AND-PRAY.md.
+rem ============================================================================

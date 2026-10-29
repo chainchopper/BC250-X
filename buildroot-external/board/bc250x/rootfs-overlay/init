@@ -4,6 +4,10 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 mount -t proc proc /proc; mount -t sysfs sysfs /sys; mount -t devtmpfs devtmpfs /dev 2>/dev/null
 mkdir -p /dev/pts /tmp /run; mount -t devpts devpts /dev/pts 2>/dev/null
+# v0.4.1: live marker — the bc250x CLI's write commands (flash/pray) refuse
+# to run without it (require_live). This initramfs IS the live system, so
+# prove it here, once, at boot.
+touch /run/bc250x-live
 echo 0 > /proc/sys/kernel/printk 2>/dev/null || true
 
 # load bundled modules (storage/net for QEMU + real BC-250), ignore failures
@@ -29,6 +33,18 @@ echo "BC250X_BOOT_OK kernel=$(uname -r)"
 ( for i in eth0 enp0s3 enp0s31f6; do
     [ -e /sys/class/net/$i ] && { ip link set $i up 2>/dev/null; udhcpc -i $i -n -q -t 3 2>/dev/null && echo "network: $i up"; break; }
   done ) &
+
+# v0.4.1: Flash Mode boot entry (GRUB passes bc250x.flashmode=1). Run the
+# staged-image flow on the console before dropping to the menu. With no
+# staged image at /boot/efi/bc250x-flash/BC250X.ROM it reports exactly that
+# and exits 0 — the ESP is not mounted in this initramfs, so a GUI-staged
+# image only becomes visible here once something mounts the ESP.
+case " $(cat /proc/cmdline) " in
+  *" bc250x.flashmode=1 "*)
+    echo "BC-250-X Flash Mode boot: checking for a staged image..."
+    bc250x flashmode </dev/console >/dev/console 2>&1 || true
+    ;;
+esac
 
 while true; do
   echo ""

@@ -9,8 +9,8 @@ Everything BC-250-X needs already exists as open source. This is the bill of mat
 | systemd-boot | UEFI boot manager | LGPL-2.1+ |
 | iPXE | NetBoot | GPL-2.0+ |
 | Slint *or* LVGL | Native framebuffer UI | GPL / royalty-free (Slint) / MIT (LVGL) — pick at Phase 1 |
-| flashrom | Chip probe, backup, external-programmer recovery | GPL-2.0 |
-| AfuEfix64.efi / amdvbflash.efi | Proven BC-250 UEFI-shell flash executables (AMI / AMD tools, redistributed by the community BIOS project) | Proprietary freeware tools — **flagged:** confirm redistribution terms before shipping in a commercial ISO; fallback is “bring your own” drop-in folder, which the Flash Mode already supports |
+| flashrom | **The flasher**: chip probe, verified backup, gated writes + read-back verify in the live image; external-programmer recovery | GPL-2.0 |
+| AfuEfix64.efi | The community's legacy UEFI-shell flasher for this board (AMI tool). **Not shipped and not used since v0.4.1** — BC-250-X writes with flashrom so the ISO is complete out of the box; the old template stays in-repo as reference | Proprietary — not redistributed |
 | memtest86+ | RAM diagnostics (EFI) | GPL-2.0 |
 | stress-ng | CPU stress | GPL-2.0 |
 | smartmontools, nvme-cli, fio | Storage diagnostics | GPL-2.0 / Apache-2.0 |
@@ -24,6 +24,9 @@ Everything BC-250-X needs already exists as open source. This is the bill of mat
 | movacx/bc250-control-center | The installed-OS control-center benchmark (dashboard, governor, SMU tuning, CU live-vs-boot state, fans, memory, verified BIOS media, FSR4, Decky). UX rules adopted project-wide (range-check + confirm; live vs boot state). Nirvana OS integration/marketplace candidate — see `docs/TOOLING-SURVEY.md` | MIT |
 | WinnieLV/bc250-cu-live-manager · duggasco/bc250-40cu-unlock · bc250-collective/bc250_smu_oc | Design references for nirvana-config: UMR live WGP/CU routing + SMU core unlock; per-WGP health test + selective CU masking; SMU CPU OC pattern. Linked from `catalog/tools.json`; no code bundled (licenses not stated in those repos as of Oct 23 2026) | Unstated upstream — reference only |
 
-**Honesty note:** AfuEfix64 is the one non-open-source piece, because it is the
-*proven* tool for this board. BC-250-X isolates it to Flash Mode, supports a
-bring-your-own binary, and never hides its presence.
+**Honesty note (updated v0.4.1):** BC-250-X ships **no** proprietary
+flasher. v0.4.0 leaned on the community's AfuEfix64 flow without shipping
+the binary; that made the headline feature incomplete out of the box, so
+the dependency was removed — flashrom (GPL-2.0) probes, backs up, writes
+and read-back-verifies. The write path's bench validation is tracked in
+`docs/BENCH-TEST.md` §7 and `docs/SAFETY.md` (Method honesty).

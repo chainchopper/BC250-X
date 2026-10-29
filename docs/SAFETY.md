@@ -27,14 +27,20 @@ all write UI (not just a warning — the buttons are gone).
 
 ## Method honesty
 
-- The community-proven in-board flash method for BC-250 is the **UEFI-shell
-  AfuEfix64** flow (used for the modded P3.00 everyone runs). BC-250-X automates
-  exactly that flow. It does **not** claim an unproven internal-Linux write path.
-- `flashrom` internal probing on AMD platforms can be unreliable; in BC-250-X
-  flashrom is used for (a) read-only probe/backup attempts with strict
-  verification, and (b) **external programmer recovery** via the board's J4004
-  header with a **CH347 (native 3.3 V)** — CH341A units that output 5 V can
-  damage the chip, and the recovery screen says so.
+- **BC-250-X's writer is flashrom** (GPL-2.0, shipped in the image), running
+  in the BC-250-X live environment — never from an installed OS. v0.4.0
+  depended on the community's UEFI-shell **AfuEfix64** flow and did not ship
+  that binary (redistribution terms); v0.4.1 removed the dependency entirely
+  rather than ship a flash feature that needs a bring-your-own file.
+- Stated plainly: AfuEfix64 is the writer with the longest field history on
+  this board; flashrom *reads* are proven in BC-250-X (the backup path),
+  and the flashrom **write** path is validated by the v0.4.1 bench flash
+  test (`docs/BENCH-TEST.md` §7) before promotion claims it. Every write is
+  followed by a **read-back hash comparison** — a flash is not reported
+  done until the chip provably matches the image.
+- flashrom is also the **external programmer recovery** tool via the board's
+  J4004 header with a **CH347 (native 3.3 V)** — CH341A units that output
+  5 V can damage the chip, and the recovery screen says so.
 
 ## During & after
 
@@ -47,13 +53,15 @@ all write UI (not just a warning — the buttons are gone).
 ## Flash & Pray (explicit opt-in — the exception that keeps the rules)
 
 Flash & Pray (`docs/FLASH-AND-PRAY.md`) is the one deliberately fast path:
-backup + settings snapshot → verify the Fanalogy preset against the signed
-catalog → type `PRAY` → staged flash of the preset (8c/16t unlock, Nirvana
-logo, baked-in presets). It removes *friction*, never *checks*: the verified
-backup, exact-size, hash-match and chip-whitelist gates above all still run
-first, and it is never the default or a silent action. The GPU CU unlock is
-not part of it — that stays an OS-level, per-board decision with automatic
-fallback, exactly as the "never force" list below requires.
+backup + settings snapshot → verify the **catalog's recommended BIOS**
+(P3.00 Chipset) → type `PRAY` → write it with our own flasher → apply the
+Fanalogy safe presets. It removes *friction*, never *checks*: the verified
+backup, exact-size, hash-match, chip-whitelist and read-back gates above
+all still run, and it is always an explicitly chosen action. It is exactly
+as safe as the manual flash flow in the app — same writer, same gates,
+fewer steps. The GPU CU unlock is not part of it — that stays an OS-level,
+per-board decision with automatic fallback, exactly as the "never force"
+list below requires.
 
 ## What BC-250-X will never do
 

@@ -78,7 +78,8 @@ The skeleton defconfig's Phase 2 payload was deliberately dropped from
 this build to keep it lean and fast to iterate on; none of it is needed
 for the boot gate, and all of it returns with the phases that use it:
 
-- **Deferred to Phase 2 (BIOS flows):** flashrom, efibootmgr, minisign
+- **Deferred to Phase 2 (BIOS flows):** efibootmgr, minisign
+  (flashrom graduated in v0.4.1 — see below)
 - **Deferred to diagnostics work:** dmidecode, lm_sensors, smartmontools,
   nvme-cli, fio, stress-ng, memtester
 - **Deferred to network work:** iwd (busybox udhcpc covers the bench test)
@@ -112,3 +113,46 @@ both payload ROMs, the UEFI menu + Flash.nsh template, and
 `nirvana-config`. Netboot pair (`vmlinuz` + `rootfs.cpio.gz` +
 `SHA256SUMS`) emitted to `output/netboot/`. Remaining gate, unchanged:
 boot on a real BC-250 (see `docs/BENCH-TEST.md`).
+
+## v0.4.1 changes (Oct 28, 2026)
+
+flashrom is now the flasher (the AfuEfix64 dependency is gone):
+
+- **Defconfig:** `BR2_PACKAGE_FLASHROM=y` (flashrom 1.5.1) +
+  `BR2_PACKAGE_PCIUTILS=y` (libpci for the internal programmer) +
+  `BR2_PACKAGE_LIBUSB=y`. The image ships `/usr/sbin/flashrom`; the
+  current `scripts/bc250x` (flash write flow, `pray` v2, `flashmode`)
+  is packaged from the tree — the rootfs-overlay copies of `bc250x`,
+  `bc250x-menu.nsh` and `Flash.nsh.template` were re-synced to their
+  canonical sources (they had gone stale in v0.4.0).
+- **Live marker:** `/init` now creates `/run/bc250x-live` at boot. The
+  CLI's write commands check for it (`require_live`) — this initramfs
+  *is* the live system, so it proves it once, at boot.
+- **Flash Mode boot entry:** GRUB gains a third entry, "BC-250-X Flash
+  Mode" — same kernel/initrd plus `bc250x.flashmode=1`. When the flag
+  is present, `/init` runs `bc250x flashmode` on the console before the
+  menu. Note: the ESP is not mounted in this initramfs, so flashmode
+  currently reports "no staged image at
+  /boot/efi/bc250x-flash/BC250X.ROM" and exits clean — mounting the ESP
+  in init is the follow-up that makes GUI-staged flashes reachable here.
+- **Gate:** `scripts/test-qemu-drive-v041.py` (PASS A–F; log
+  `build/qemu-drive-v041.log`) plus
+  `scripts/test-qemu-pray-i440fx.py` (log `build/qemu-pray-i440fx.log`).
+
+**Result — Oct 28, 2026: PASS.** `output/bc250x-prod-20261028.iso`
+(142 MB, SHA-256
+`abdee8d4c25ad675ac5a8e935d15788dff61713e1ac2de4ac0599efdc93bebe6`):
+PASS A `BC250X_BOOT_OK kernel=6.12.0`; PASS B menu + `bc250x status`;
+PASS C `bc250x verify` on the bundled P3.00 payload → `48fbe5d3…`
+(byte-identical); PASS D `flashrom v1.5.1` present at
+`/usr/sbin/flashrom`, internal probe executes; PASS F Flash Mode boot →
+`bc250x flashmode` reported no staged image, menu reached. PASS E has a
+QEMU footnote: on q35, QEMU's emulated ICH9 SPI window is misdetected by
+flashrom as a 256 kB ST M95M02 whose transactions all error out, so
+pray's backup read grinds instead of failing fast — it still cannot and
+did not pass its gates (dual 16 MB read + typed `PRAY`); no Step 2/3,
+no write. On i440fx/PIIX3 (`-machine pc`), where there is no emulated
+SPI at all, PASS E holds exactly as specified: pray passed
+`require_live` (live marker works), reached the verified-backup step,
+flashrom reported "No EEPROM/flash device found", and pray exited there
+with the shell responsive.

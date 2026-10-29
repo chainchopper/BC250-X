@@ -108,3 +108,38 @@ If any step fails, note *where* it failed (GRUB? kernel? init? menu?)
 and the last line on screen. Do not change anything on the board to
 "make it work" — the point is to learn what the ISO does, not to fix
 the board.
+
+---
+
+## 7. Flash test (v0.4.1 ISO — the headline test; do this on a board you can afford to recover)
+
+v0.4.1 flashes with **our own writer (flashrom)** inside the live image.
+**Nothing is bring-your-own** — no AfuEfix64, no extra files. This test is
+what validates the flashrom write path on real silicon; run it only on a
+bench board, with the J4004/CH347 recovery path understood first
+(`docs/SAFETY.md`), and the board on stable AC power.
+
+- [ ] Boot the **v0.4.1 ISO**, drop to the shell from the menu.
+- [ ] `bc250x status` — confirm the board reports normally.
+- [ ] Run **`bc250x pray`** and follow it exactly:
+  - [ ] It makes a **verified backup** first (two reads, matching hashes) +
+        settings snapshot — note the backup directory it writes.
+  - [ ] It verifies the bundled P3.00 payload against the catalog hash.
+  - [ ] Type `PRAY` — watch the flashrom write run. **Do not power off.**
+        (A flash can look hung — wait at least 15 minutes before concluding
+        anything is wrong.)
+  - [ ] It finishes with **"Read-back verified"** — the chip hash-compared
+        equal to the image. Record whether you saw this line.
+- [ ] On completion: remove power, **clear CMOS (battery out, 60 s)**.
+- [ ] Boot the board: enter the BIOS chipset menu and verify the presets —
+      IOMMU **Disabled**, VRAM **512 MB Dynamic**, core config **8C/16T**.
+- [ ] Boot BC-250-X again: `bc250x status` — record threads (expect 16) and
+      confirm the governor preset line (1500 MHz / 900 mV) in the output or
+      in `nirvana-config`.
+
+**Send back:** the full pray session output (photo/scrollback), the backup
+file's `.json` sidecar, whether "Read-back verified" appeared, the preset
+verification results, and anything that differed. If the write fails or
+read-back mismatches: do **not** reboot the board — restore from the
+verified backup in the same session (`bc250x flash <backup>.bin`) and
+report exactly where it stopped.

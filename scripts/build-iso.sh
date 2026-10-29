@@ -70,6 +70,10 @@ menuentry "BC-250-X - Production Live, verbose" {
   linux /boot/vmlinuz console=tty0 console=ttyS0,115200 bc250x.live loglevel=7
   initrd /boot/initramfs.gz
 }
+menuentry "BC-250-X Flash Mode" {
+  linux /boot/vmlinuz console=tty0 console=ttyS0,115200 bc250x.live bc250x.flashmode=1 quiet loglevel=3
+  initrd /boot/initramfs.gz
+}
 CFG
 grub-mkstandalone -O x86_64-efi -o "$STAGE/EFI/BOOT/BOOTX64.EFI" "boot/grub/grub.cfg=$WORK/grub.cfg" --modules="part_gpt part_msdos iso9660 fat ext2 normal linux all_video search search_fs_file" 2>/dev/null \
  || grub-mkstandalone -O x86_64-efi -o "$STAGE/EFI/BOOT/BOOTX64.EFI" "boot/grub/grub.cfg=$WORK/grub.cfg"

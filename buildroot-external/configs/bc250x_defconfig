@@ -8,8 +8,9 @@
 # is BIOS-oriented and intentionally NOT used.
 #
 # Deferred (Phase 2+ payload, dropped to keep this build lean/fast):
-# flashrom, efibootmgr, dmidecode, lm_sensors, smartmontools, nvme-cli,
+# efibootmgr, dmidecode, lm_sensors, smartmontools, nvme-cli,
 # fio, stress-ng, memtester, iwd, minisign, systemd.
+# (flashrom moved OUT of the deferred list in v0.4.1 — it is the flasher.)
 
 BR2_x86_64=y
 
@@ -40,6 +41,14 @@ BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 # x86_64 defconfig enables objtool (ORC unwinder); objtool needs host libelf
 BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF=y
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_BC250X_PATH)/../kernel/bc250x-kernel.fragment"
+
+# v0.4.1: flashrom is THE flasher (the bc250x CLI's backup/flash/pray all
+# drive `flashrom -p internal`). pciutils provides libpci (+ lspci) for the
+# internal programmer's chipset/flash access; libusb pulls in the USB
+# programmers and satisfies flashrom's build-time deps.
+BR2_PACKAGE_FLASHROM=y
+BR2_PACKAGE_PCIUTILS=y
+BR2_PACKAGE_LIBUSB=y
 
 # Payload for the boot gate + bench readiness
 BR2_PACKAGE_KMOD=y
